@@ -1,0 +1,68 @@
+[
+  {
+    "description": "Drink water",
+    "type": "Every X minutes",
+    "emoji": "💧",
+    "message": "Stay hydrated!",
+    "active": true,
+    "interval_minutes": 30,
+    "id": 1
+  },
+  {
+    "description": "Stretch break",
+    "type": "Every hour",
+    "emoji": "🧘",
+    "message": "Stand up and move a little.",
+    "active": true,
+    "id": 2
+  },
+  {
+    "description": "Lunch",
+    "type": "Daily",
+    "emoji": "🍽️",
+    "message": "",
+    "active": true,
+    "time": "12:00",
+    "id": 3
+  },
+  {
+    "description": "Weekly team meeting",
+    "type": "Weekly",
+    "emoji": "📅",
+    "message": "Prepare the agenda beforehand.",
+    "active": true,
+    "weekday": 0,
+    "weekday_label": "Monday",
+    "time": "09:00",
+    "id": 4
+  },
+  {
+    "description": "Pay bills",
+    "type": "Monthly",
+    "emoji": "💸",
+    "message": "Check the amount in your banking app.",
+    "active": true,
+    "day_of_month": 10,
+    "time": "08:00",
+    "id": 5
+  },
+  {
+    "description": "Doctor appointment",
+    "type": "Specific date",
+    "emoji": "🏥",
+    "message": "Bring your insurance card.",
+    "active": true,
+    "date": "2026-04-15",
+    "time": "14:30",
+    "id": 6
+  },
+  {
+    "description": "Computer backup",
+    "type": "Once",
+    "emoji": "💾",
+    "message": "",
+    "active": true,
+    "time": "22:00",
+    "id": 7
+  }
+]
