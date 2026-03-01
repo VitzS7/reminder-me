@@ -96,6 +96,7 @@ reminder-me/
 ├── reminder_me.py       # Application
 ├── reminder_me.spec     # PyInstaller config
 ├── build.bat            # One-click build (Windows)
+├── icon.ico             # Icon for the .exe
 ├── CHANGELOG.md
 └── README.md
 ```
