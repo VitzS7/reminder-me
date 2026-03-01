@@ -448,13 +448,15 @@ def _setup_icons() -> tuple:
 
     try:
         if not os.path.exists(ico):
-            ico_sizes = [256, 128, 64, 48, 32, 24, 16]
-            frames    = [_make_bell(sz) for sz in ico_sizes]
-            frames[0].save(ico, format="ICO",
-                           sizes=[(sz, sz) for sz in ico_sizes],
-                           append_images=frames[1:])
+            base_img = _make_bell(256)
+            szs      = [(16,16),(24,24),(32,32),(48,48),(64,64),(128,128),(256,256)]
+            icons    = [base_img.resize(s, Image.LANCZOS) for s in szs]
+            icons[0].save(ico, format="ICO",
+                          sizes=[(s[0], s[1]) for s in szs],
+                          append_images=icons[1:])
         if not os.path.exists(png):
-            _make_bell(256).save(png, "PNG")
+            base_img = _make_bell(256)
+            base_img.save(png, "PNG")
     except Exception:
         ico = png = ""
 
