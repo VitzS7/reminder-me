@@ -2,7 +2,7 @@
 
 A lightweight Windows desktop reminder app with native toast notifications, multiple repeat modes, and multi-language support.
 
-![Python](https://img.shields.io/badge/Python-3.10%2B-blue?logo=python) ![Platform](https://img.shields.io/badge/Platform-Windows-lightgrey?logo=windows) ![License](https://img.shields.io/badge/License-MIT-green) ![Version](https://img.shields.io/badge/Version-1.0.0-informational)
+![Python](https://img.shields.io/badge/Python-3.10%2B-blue?logo=python) ![Platform](https://img.shields.io/badge/Platform-Windows-lightgrey?logo=windows) ![License](https://img.shields.io/badge/License-MIT-green) ![Version](https://img.shields.io/badge/Version-1.0.1-informational)
 
 ---
 
@@ -24,7 +24,7 @@ Go to the [Releases](https://github.com/VitzS7/reminder-me/releases) page and do
 - 🕐 Visual time picker — click to type or use arrow buttons
 - 🖥️ Minimizes to system tray, keeps running in background
 - 🗑️ One-time reminders deleted automatically after they fire
-- 💾 Data stored locally next to the app
+- 💾 Data stored in a `reminder-me/` subfolder next to the app
 
 ---
 
@@ -73,22 +73,32 @@ Make sure `icon.ico` is in the project folder before building.
 
 ---
 
-## Project Structure
+## File Structure (after first run)
+
+```
+dist/
+├── ReminderMe.exe
+└── reminder-me/
+    ├── icon.ico         ← app icon (window / taskbar / exe)
+    ├── icon.png         ← app icon (toast notifications)
+    ├── reminders.json   ← saved reminders
+    └── settings.json    ← preferences
+```
+
+All files in `reminder-me/` are created automatically and regenerated if deleted.
+
+---
+
+## Project Structure (source)
 
 ```
 reminder-me/
 ├── reminder_me.py       # Application
 ├── reminder_me.spec     # PyInstaller config
 ├── build.bat            # One-click build (Windows)
-├── icon.ico             # App icon — window / taskbar / exe (auto-generated)
-├── icon.png             # App icon — toast notifications  (auto-generated)
-├── reminders.json       # Saved reminders (auto-created)
-├── settings.json        # Preferences    (auto-created)
 ├── CHANGELOG.md
 └── README.md
 ```
-
-All runtime files are created automatically on first launch and regenerated if deleted.
 
 ---
 
