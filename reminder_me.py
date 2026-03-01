@@ -28,8 +28,12 @@ APP_NAME = "Reminder Me"
 def _app_base() -> str:
     import sys
     if getattr(sys, "frozen", False):
-        return os.path.dirname(sys.executable)
-    return os.path.dirname(os.path.abspath(__file__))
+        exe_dir = os.path.dirname(sys.executable)
+    else:
+        exe_dir = os.path.dirname(os.path.abspath(__file__))
+    data_dir = os.path.join(exe_dir, "reminder-me")
+    os.makedirs(data_dir, exist_ok=True)
+    return data_dir
 
 
 _BASE         = _app_base()
@@ -341,57 +345,118 @@ def save_settings(s):
 def _setup_icons() -> tuple:
     import sys
     if getattr(sys, "frozen", False):
-        base = os.path.dirname(sys.executable)
+        base = os.path.join(os.path.dirname(sys.executable), "reminder-me")
     else:
-        base = os.path.dirname(os.path.abspath(__file__))
+        base = os.path.join(os.path.dirname(os.path.abspath(__file__)), "reminder-me")
+    os.makedirs(base, exist_ok=True)
     ico = os.path.join(base, "icon.ico")
     png = os.path.join(base, "icon.png")
 
-    def _make_fallback(size=256):
-        img  = Image.new("RGBA", (size, size), (0, 0, 0, 0))
-        draw = ImageDraw.Draw(img)
-        s    = size
-        for r in range(s // 2, 0, -1):
-            t = 1 - r / (s // 2)
-            c = (int(10 + 40 * t), int(30 + 80 * t), int(80 + 120 * t), 255)
-            draw.ellipse((s//2 - r, s//2 - r, s//2 + r, s//2 + r), fill=c)
-        bw, bh = s * 0.44, s * 0.36
-        by     = s * 0.27
-        draw.polygon([
-            (s//2 - bw*0.45, by + bh), (s//2 + bw*0.45, by + bh),
-            (s//2 + bw*0.5,  by + bh*0.6), (s//2 + bw*0.3,  by),
-            (s//2 - bw*0.3,  by), (s//2 - bw*0.5,  by + bh*0.6),
-        ], fill=(255, 220, 80))
-        draw.arc((s//2 - bw*0.3, by - bh*0.15, s//2 + bw*0.3, by + bh*0.3),
-                 start=200, end=340, fill=(255, 200, 50), width=max(2, s//40))
-        draw.line([(s//2, int(by - s*0.03)), (s//2, int(by - s*0.13))],
-                  fill=(255, 220, 80), width=max(3, s//28))
-        ry = by + bh
-        draw.rounded_rectangle((s//2 - bw*0.5, ry - s*0.03, s//2 + bw*0.5, ry + s*0.02),
-                                radius=s//30, fill=(220, 170, 30))
-        cr = s * 0.065
-        draw.ellipse((s//2 - cr, ry - cr*0.4, s//2 + cr, ry + cr*1.6), fill=(220, 170, 30))
-        dr = s * 0.14
-        dx, dy = s//2 + bw*0.28, by - dr*0.4
-        draw.ellipse((dx - dr, dy - dr, dx + dr, dy + dr), fill=(220, 50, 50))
-        draw.ellipse((dx - dr*0.55, dy - dr*0.55, dx + dr*0.55, dy + dr*0.55), fill=(240, 80, 80))
-        return img
+    def _make_bell(final_size=256):
+        SS = 4
+        s  = final_size * SS
+        cx, cy, R = s//2, s//2, s//2 - 4
+        img = Image.new("RGBA", (s, s), (0, 0, 0, 0))
+        d   = ImageDraw.Draw(img)
+
+        # Radial gradient background
+        for r in range(R, 0, -1):
+            t  = r / R
+            d.ellipse((cx-r, cy-r, cx+r, cy+r),
+                      fill=(int(22+(55-22)*(1-t)),
+                            int(32+(55-32)*(1-t)),
+                            int(90+(130-90)*(1-t)), 255))
+
+        bell_cx  = cx
+        bell_top = int(cy - R * 0.22)
+        bell_bot = int(cy + R * 0.32)
+        w_top    = int(R * 0.30)
+        w_bot    = int(R * 0.60)
+        dome_r   = int(R * 0.44)
+        dome_cy  = bell_top
+
+        # Smooth scanline bell body
+        for row in range(bell_top, bell_bot + 1):
+            frac = (row - bell_top) / max(bell_bot - bell_top, 1)
+            if frac < 0.55:
+                w = w_top + (w_bot - w_top) * (frac / 0.55) ** 0.65
+            else:
+                w = w_bot - (w_bot - int(w_bot * 0.90)) * ((frac - 0.55) / 0.45)
+            shade = int(25 * frac)
+            d.line([(bell_cx - int(w), row), (bell_cx + int(w), row)],
+                   fill=(245 - shade, 195 - shade, 28, 255))
+
+        # Dome
+        d.ellipse((bell_cx - dome_r, dome_cy - dome_r,
+                   bell_cx + dome_r, dome_cy + dome_r),
+                  fill=(245, 195, 28, 255))
+
+        # Specular crescent highlight: bright ellipse carved by dome-coloured ellipse
+        hi_r  = int(dome_r * 0.58)
+        hi_ox = -int(dome_r * 0.24)
+        hi_oy = -int(dome_r * 0.26)
+        d.ellipse((bell_cx+hi_ox-hi_r, dome_cy+hi_oy-hi_r,
+                   bell_cx+hi_ox+hi_r, dome_cy+hi_oy+hi_r),
+                  fill=(255, 230, 130, 255))
+        cr  = int(dome_r * 0.56)
+        cox = int(dome_r * 0.14)
+        coy = int(dome_r * 0.14)
+        d.ellipse((bell_cx+cox-cr, dome_cy+coy-cr,
+                   bell_cx+cox+cr, dome_cy+coy+cr),
+                  fill=(245, 195, 28, 255))
+
+        # Stem
+        stem_w = int(R * 0.09)
+        d.rounded_rectangle(
+            (bell_cx - stem_w, dome_cy - dome_r - int(R * 0.18),
+             bell_cx + stem_w, dome_cy - dome_r),
+            radius=stem_w, fill=(245, 195, 28, 255))
+
+        # Rim
+        rim_h = int(R * 0.10)
+        rim_w = w_bot + int(R * 0.06)
+        d.rounded_rectangle(
+            (bell_cx - rim_w, bell_bot - rim_h // 2,
+             bell_cx + rim_w, bell_bot + rim_h // 2),
+            radius=rim_h // 2, fill=(160, 115, 8, 255))
+
+        # Clapper
+        clap_r = int(R * 0.09)
+        clap_y = bell_bot + rim_h // 2 + clap_r + 4
+        d.ellipse((bell_cx - clap_r, clap_y - clap_r,
+                   bell_cx + clap_r, clap_y + clap_r),
+                  fill=(160, 115, 8, 255))
+
+        # Badge depth shadow (opaque dark red, offset)
+        bdg_cx = bell_cx + int(R * 0.38)
+        bdg_cy = dome_cy - dome_r + int(R * 0.08)
+        bdg_r  = int(R * 0.21)
+        off    = max(3, int(bdg_r * 0.20))
+        d.ellipse((bdg_cx - bdg_r + off, bdg_cy - bdg_r + off,
+                   bdg_cx + bdg_r + off, bdg_cy + bdg_r + off),
+                  fill=(130, 15, 15, 255))
+        # Badge
+        d.ellipse((bdg_cx - bdg_r, bdg_cy - bdg_r,
+                   bdg_cx + bdg_r, bdg_cy + bdg_r),
+                  fill=(215, 38, 38, 255))
+
+        # Clip to circle
+        mask = Image.new("L", (s, s), 0)
+        ImageDraw.Draw(mask).ellipse((cx-R, cy-R, cx+R, cy+R), fill=255)
+        img.putalpha(mask)
+        return img.resize((final_size, final_size), Image.LANCZOS)
 
     try:
         if not os.path.exists(ico):
-            base_img = _make_fallback(256)
+            base_img = _make_bell(256)
             szs      = [(16,16),(24,24),(32,32),(48,48),(64,64),(128,128),(256,256)]
             icons    = [base_img.resize(s, Image.LANCZOS) for s in szs]
             icons[0].save(ico, format="ICO",
                           sizes=[(s[0], s[1]) for s in szs],
                           append_images=icons[1:])
         if not os.path.exists(png):
-            src  = Image.open(ico).convert("RGBA")
-            w, h = src.size
-            side = max(w, h)
-            sq   = Image.new("RGBA", (side, side), (0, 0, 0, 0))
-            sq.paste(src, ((side - w) // 2, (side - h) // 2))
-            sq.resize((256, 256), Image.LANCZOS).save(png, "PNG")
+            base_img = _make_bell(256)
+            base_img.save(png, "PNG")
     except Exception:
         ico = png = ""
 
