@@ -1,5 +1,13 @@
 # Changelog
 
+## [v1.0.1] — 2026-02-28
+
+### Changed
+- **Data subfolder** — all generated files (`icon.ico`, `icon.png`, `reminders.json`, `settings.json`) are now stored in a `reminder-me/` subfolder next to the executable.
+- **Icon quality** — the bell icon is now rendered at 4× resolution (1024 px) and downscaled with LANCZOS anti-aliasing, eliminating the jagged/pixelated edges seen in v1.0.0. Redesigned with a smooth scanline bell body, radial gradient background, specular highlight on the dome, and a red notification badge with depth shadow.
+
+---
+
 ## [v1.0.0] — 2026-02-28
 
 Initial release of **Reminder Me**.
@@ -15,5 +23,4 @@ Initial release of **Reminder Me**.
 - Minimizes to system tray — click tray icon to restore
 - One-time reminders deleted automatically after firing
 - App icon registered in Windows registry for correct notification header icon
-- All data files stored next to the executable (`reminders.json`, `settings.json`, `icon.ico`, `icon.png`)
 - PyInstaller `.spec` and `build.bat` for one-click Windows `.exe` build
